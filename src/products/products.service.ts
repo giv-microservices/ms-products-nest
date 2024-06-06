@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
   Logger,
@@ -57,12 +58,14 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    //TODO improve using try catch instead of find one
+    // _ to ignore id
+    const { id: __, ...data } = updateProductDto;
+
     const product = await this.findOne(id);
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
-    return this.product.update({ where: { id }, data: updateProductDto });
+    return this.product.update({ where: { id }, data });
   }
 
   async remove(id: number) {

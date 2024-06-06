@@ -2,20 +2,31 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { env } from './config';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
-  const logger = new Logger('Product-ms-main');
+  const logger = new Logger('Main');
 
-  const app = await NestFactory.create(AppModule);
-
-  // Enable CORS
-  app.enableCors();
-
-  app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.TCP,
+      options: {
+        port: env.port,
+      },
+    },
   );
 
-  await app.listen(env.port);
-  logger.log(`Server running on http://localhost:${env.port} 🚀`);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
+  await app.listen();
+  logger.log(
+    `Products Micro Service running on http://localhost:${env.port} 🚀`,
+  );
 }
 bootstrap();
