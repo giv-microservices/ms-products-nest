@@ -1,4 +1,5 @@
 import {
+  HttpStatus,
   Injectable,
   Logger,
   OnModuleInit,
@@ -50,9 +51,11 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     });
 
     if (!product) {
-      throw new RpcException(`Product with ID ${id} not found`);
+      throw new RpcException({
+        message: `Product with id #${id} not found`,
+        status: HttpStatus.BAD_REQUEST
+      });
     }
-
     return product;
   }
 
@@ -63,7 +66,10 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
 
     const product = await this.findOne(id);
     if (!product) {
-      throw new RpcException(`Product with ID ${id} not found`);
+      throw new RpcException({
+        message: `Product with id #${id} not found`,
+        status: HttpStatus.BAD_REQUEST
+      });
     }
     return this.product.update({ where: { id }, data });
   }
@@ -71,7 +77,10 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
   async remove(id: number) {
     const product = await this.product.findFirst({ where: { id } });
     if (!product) {
-      throw new RpcException(`Product with ID ${id} not found`);
+      throw new RpcException({
+        message: `Product with id #${id} not found`,
+        status: HttpStatus.BAD_REQUEST
+      });
     }
     const productDeleted = await this.product.delete({
       where: { id: product.id },
@@ -85,7 +94,10 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
   async softDelete(id: number) {
     const product = await this.findOne(id);
     if (!product) {
-      throw new RpcException(`Product with ID ${id} not found`);
+      throw new RpcException({ 
+        message: `Product with id #${ id } not found`,
+        status: HttpStatus.BAD_REQUEST
+      });
     }
     return this.product.update({ where: { id }, data: { available: false } });
   }
