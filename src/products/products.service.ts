@@ -59,6 +59,8 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     return product;
   }
 
+
+
   async update(id: number, updateProductDto: UpdateProductDto) {
     // _ to ignore id
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -94,11 +96,34 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
   async softDelete(id: number) {
     const product = await this.findOne(id);
     if (!product) {
-      throw new RpcException({ 
-        message: `Product with id #${ id } not found`,
+      throw new RpcException({
+        message: `Product with id #${id} not found`,
         status: HttpStatus.BAD_REQUEST
       });
     }
     return this.product.update({ where: { id }, data: { available: false } });
+  }
+
+  async validateProducts(productsIds: number[]) {
+    // Remove duplicates
+    const ids =  Array.from(new Set(productsIds));
+    try {
+      const products = await this.product.findMany({ where: { id: { in: ids } } });
+
+      if (products.length !== ids.length) {
+        throw new RpcException({
+          message: 'Some products were not found',
+          status: HttpStatus.BAD_REQUEST
+        });
+      }
+      return products;
+    }
+    catch (error) {
+      throw new RpcException({
+        message: error.message,
+        status: HttpStatus.BAD_REQUEST
+      });
+    }
+
   }
 }
