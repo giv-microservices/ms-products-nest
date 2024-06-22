@@ -1,0 +1,5 @@
+dist/
+note_modules/
+
+.env
+.vscode/
